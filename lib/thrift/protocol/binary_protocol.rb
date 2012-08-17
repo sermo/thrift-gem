@@ -103,8 +103,9 @@ module Thrift
     end
 
     def write_string(str)
-      write_i32(str.length)
-      trans.write(str)
+      string_to_write = (str.frozen? ? str.dup : str).force_encoding('UTF-8')
+      write_i32(string_to_write.bytesize)
+      trans.write(string_to_write)
     end
 
     def read_message_begin
@@ -212,7 +213,7 @@ module Thrift
     def read_string
       sz = read_i32
       dat = trans.read_all(sz)
-      dat
+      dat.force_encoding('UTF-8')
     end
 
   end
