@@ -25,27 +25,29 @@ require 'stringio'
 
 module Thrift
   class HTTPClientTransport < BaseTransport
-
-    def initialize(url)
+    def initialize(url, additional_headers = {})
       @url = URI url
-      @headers = {'Content-Type' => 'application/x-thrift'}
       @outbuf = ""
+      @additional_headers = additional_headers || {}
     end
 
     def open?; true end
     def read(sz); @inbuf.read sz end
     def write(buf); @outbuf << buf end
-
-    def add_headers(headers)
-      @headers = @headers.merge(headers)
-    end
-
     def flush
       http = Net::HTTP.new @url.host, @url.port
       http.use_ssl = @url.scheme == "https"
-      resp, data = http.post(@url.request_uri, @outbuf, @headers)
-      @inbuf = StringIO.new data
+      headers = { 'Content-Type' => 'application/x-thrift' }.merge(@additional_headers)
+      begin
+         resp, data = http.post(@url.path, @outbuf, headers)
+         unless resp.code == "200"
+            Rails.logger.error "Failed Thrift call to #{@url} with http status: #{resp.code} and data >>>> \n #{data} \n <<<< data"
+            raise "Request to service failed w/ http status: #{resp.code}"
+         end
+      ensure
+         @inbuf = StringIO.new( data || '' )
       @outbuf = ""
     end
+  end
   end
 end
