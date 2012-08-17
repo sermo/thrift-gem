@@ -23,10 +23,18 @@ module Thrift
       @handler = handler
     end
 
+    # FIXME (2010-02-03): this is bad, we should do this as an alias_method_chain so we don't have
+    # to pollute plugin code (and then lose it in an update)
     def process(iprot, oprot)
       name, type, seqid  = iprot.read_message_begin
       if respond_to?("process_#{name}")
-        send("process_#{name}", seqid, iprot, oprot)
+         if defined?(Rails)
+            Rails.logger.info { "Dispatching thrift call to #{name}" }
+         end
+         ms = [Benchmark.ms { send("process_#{name}", seqid, iprot, oprot) }, 0.01].max
+         if defined?(Rails.logger)
+            Rails.logger.info { "Dispatched thrift call to #{name} in %.0fms" % ms }
+         end
         true
       else
         iprot.skip(Types::STRUCT)
