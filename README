@@ -4,8 +4,9 @@ We've made a few (Sermo-specific?) changes to thrift-0.5.0. These are:
 - Modified HttpTransport to send along some addtional HTTP headers
 - Added HttpCurlTransport, a transport based on patron/curl, which sends the same additional headers that HttpCurlTransport sends.
 - Added benchmarking and logging to Thrift::Processor.process
-- Modified BinaryProtocol to support Ruby 1.9 UTF-8 string encoding
-- Bumped version to 0.5.0.sermo
+- Modified BinaryProtocol to support reading in Ruby 1.9 UTF-8 string encoding
+- Modified BinaryProtocol to force writing strings as binary (ASCII-8BIT)
+- Bumped version to 0.5.1.sermo
 
 Thrift Ruby Software Library
     http://incubator.apache.org/thrift/
