@@ -103,9 +103,13 @@ module Thrift
     end
 
     def write_string(str)
+      original_encoding = str.encoding
       string_to_write = (str.frozen? ? str.dup : str).force_encoding('ASCII-8BIT')
       write_i32(string_to_write.bytesize)
-      trans.write(string_to_write)
+      # Preserve the return value of trans.write
+      trans.write(string_to_write).tap do |retval|
+        string_to_write.force_encoding(original_encoding)
+      end
     end
 
     def read_message_begin
