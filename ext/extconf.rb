@@ -17,7 +17,9 @@
 # under the License.
 #
 
-if RUBY_PLATFORM =~ /darwin|mac os/i
+# don't attempt to build the native extensions on platforms that match the
+# following regular expression
+if `uname -a` =~ /Darwin|Debian|Ubuntu/
   # The following is adapted from:
   # http://stackoverflow.com/questions/17406246/native-extensions-fallback-to-pure-ruby-if-not-supported-on-gem-install
   # Create a dummy Makefile, to satisfy Gem::Installer#install
